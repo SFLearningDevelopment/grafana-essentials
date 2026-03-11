@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>📊 Grafana Basic Course - Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #f46800;
+    --accent2: #ff9a3c;
+    --text: #e8eaf0;
+    --text2: #9da3bd;
+    --green: #2ecc71;
+    --blue: #3498db;
+    --purple: #9b59b6;
+    --red: #e74c3c;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --radius: 12px;
+  }
+  [data-theme="light"] {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef0f8;
+    --border: #d0d5e8;
+    --text: #1a1d27;
+    --text2: #555b7a;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-logo { height: 36px; }
+  .header-title { font-size: 1.25rem; font-weight: 700; color: var(--accent); letter-spacing: -0.3px; }
+  .theme-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+  }
+  .theme-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--text2); font-size: 1.05rem; max-width: 720px; margin: 0 auto 24px; }
+
+  /* GRID LAYOUT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media(max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+  }
+  .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  /* LEARN ITEMS */
+  .learn-list { list-style: none; }
+  .learn-list li { padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--text2); font-size: 0.9rem; display: flex; align-items: flex-start; gap: 8px; }
+  .learn-list li:last-child { border-bottom: none; }
+  .learn-list li strong { color: var(--text); }
+
+  /* PROGRESS */
+  .progress-overview { text-align: center; }
+  .progress-circle { position: relative; display: inline-block; margin: 12px auto; }
+  .progress-circle svg { transform: rotate(-90deg); }
+  .progress-circle .pct { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .progress-label { color: var(--text2); font-size: 0.85rem; margin-top: 4px; }
+  .stat-row { display: flex; justify-content: center; gap: 32px; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+  .stat .lbl { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .resume-btn {
+    display: inline-block; margin-top: 20px;
+    background: var(--accent); color: white;
+    padding: 10px 24px; border-radius: 8px; font-weight: 600;
+    font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .resume-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* STUDY PLAN */
+  .week-item { padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; }
+  .week-item:last-child { border-bottom: none; }
+  .week-badge { background: var(--accent); color: white; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; white-space: nowrap; min-width: 56px; text-align: center; margin-top: 2px; }
+  .week-text { font-size: 0.88rem; color: var(--text2); }
+  .week-text strong { color: var(--text); }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* MODULE CARDS */
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .module-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(244,104,0,0.15); }
+  .module-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .module-num { background: var(--accent); color: white; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+  .module-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 4px; }
+  .badge-weight { background: rgba(52,152,219,0.15); color: var(--blue); border: 1px solid rgba(52,152,219,0.3); }
+  .badge-sections { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .badge-quiz { background: rgba(155,89,182,0.15); color: var(--purple); border: 1px solid rgba(155,89,182,0.3); }
+  .module-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .module-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 16px; }
+  .module-progress-bar { background: var(--surface2); border-radius: 99px; height: 6px; margin-bottom: 16px; overflow: hidden; }
+  .module-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s; }
+  .module-footer { display: flex; justify-content: space-between; align-items: center; }
+  .module-progress-text { font-size: 0.8rem; color: var(--text2); }
+  .start-btn {
+    background: var(--accent); color: white;
+    padding: 9px 20px; border-radius: 8px;
+    font-weight: 600; font-size: 0.85rem;
+    border: none; cursor: pointer; transition: all 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .start-btn:hover { background: var(--accent2); }
+  .start-btn.locked { background: var(--surface2); color: var(--text2); cursor: not-allowed; }
+
+  /* VIDEOS */
+  .video-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--text2); }
+  .video-item:last-child { border-bottom: none; }
+  .video-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .video-item strong { color: var(--text); }
+
+  /* EVAL CARD */
+  .eval-card {
+    background: linear-gradient(135deg, rgba(244,104,0,0.1), rgba(255,154,60,0.05));
+    border: 1px solid rgba(244,104,0,0.3);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .eval-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+  .eval-card p { color: var(--text2); font-size: 0.88rem; margin-bottom: 20px; }
+  .eval-btn {
+    background: var(--accent); color: white;
+    padding: 12px 32px; border-radius: 8px;
+    font-weight: 700; font-size: 0.95rem;
+    border: none; cursor: pointer; transition: all 0.2s;
+    text-decoration: none; display: inline-block;
+    opacity: 0.5; pointer-events: none;
+  }
+  .eval-btn.unlocked { opacity: 1; pointer-events: auto; }
+  .eval-btn:hover { background: var(--accent2); }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-top: 32px;
+  }
+  .disclaimer h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .disclaimer p { font-size: 0.8rem; color: var(--text2); margin-bottom: 12px; line-height: 1.6; }
+  .disclaimer p:last-child { margin-bottom: 0; }
+  .disclaimer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width: 600px) { .disclaimer-grid { grid-template-columns: 1fr; } }
+  .footer-bar { text-align: center; padding: 24px; font-size: 0.78rem; color: var(--text2); border-top: 1px solid var(--border); margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <img src="https://sflearningdevelopment.github.io/sf-internal-kubernetes-certification/sourcefuse-logo.png" class="header-logo" alt="SourceFuse"/>
+    <span class="header-title">📊 Grafana Basic Course</span>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">🌓 Toggle Theme</button>
+</header>
+
+<div class="hero">
+  <h1>Welcome to <span>Grafana Basic</span> Certification Course</h1>
+  <p>This comprehensive course prepares you for the <strong>Grafana Basic Level Certification</strong> covering dashboards, Prometheus integration, alerting, and plugins. Complete all 4 modules to master Grafana fundamentals.</p>
+</div>
+
+<div class="main">
+
+  <div class="grid-2">
+    <!-- WHAT YOU'LL LEARN -->
+    <div class="card">
+      <h3>📚 What You'll Learn</h3>
+      <ul class="learn-list">
+        <li><span>📊</span><span><strong>Grafana Fundamentals (25%):</strong> UI navigation, panels, data sources & dashboards</span></li>
+        <li><span>🔥</span><span><strong>Prometheus Integration (30%):</strong> PromQL queries, metrics, scrape configs</span></li>
+        <li><span>🔔</span><span><strong>Alerting & Notifications (25%):</strong> Alert rules, contact points, notification policies</span></li>
+        <li><span>🔌</span><span><strong>Plugins & Extensions (20%):</strong> Installing & configuring Grafana plugins</span></li>
+      </ul>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="card progress-overview">
+      <h3>📊 Your Progress</h3>
+      <div class="progress-circle">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface2)" stroke-width="10"/>
+          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="10"
+            stroke-dasharray="264" id="progress-arc" stroke-dashoffset="264" stroke-linecap="round"/>
+        </svg>
+        <div class="pct" id="pct-text">0%</div>
+      </div>
+      <div class="progress-label" id="progress-label">0 of 32 sections completed</div>
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="stat-done">0</div><div class="lbl">Completed</div></div>
+        <div class="stat"><div class="num" id="stat-rem">32</div><div class="lbl">Remaining</div></div>
+      </div>
+      <button class="resume-btn" onclick="resumeLearning()">📖 Resume Learning</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- COURSE FEATURES -->
+    <div class="card">
+      <h3>🎯 Course Features</h3>
+      <ul class="learn-list">
+        <li><span>✅</span><span>32 comprehensive sections mapped to certification questions</span></li>
+        <li><span>✅</span><span>Real-world examples and hands-on scenarios</span></li>
+        <li><span>✅</span><span>PromQL query examples and dashboard templates</span></li>
+        <li><span>✅</span><span>Common pitfalls and best practices</span></li>
+        <li><span>✅</span><span>Video tutorials from Grafana educators</span></li>
+        <li><span>✅</span><span>Interactive knowledge checks per module</span></li>
+        <li><span>✅</span><span>Final evaluation test with MCQs & scenario questions</span></li>
+      </ul>
+    </div>
+
+    <!-- STUDY PLAN -->
+    <div class="card">
+      <h3>⏱️ Recommended Study Plan</h3>
+      <div class="week-item"><span class="week-badge">Week 1</span><span class="week-text"><strong>Module 1:</strong> Grafana Fundamentals — UI, panels, data sources</span></div>
+      <div class="week-item"><span class="week-badge">Week 2</span><span class="week-text"><strong>Module 2:</strong> Prometheus Integration — metrics, PromQL, scraping</span></div>
+      <div class="week-item"><span class="week-badge">Week 3</span><span class="week-text"><strong>Module 3:</strong> Alerting & Notifications — rules, routing, contact points</span></div>
+      <div class="week-item"><span class="week-badge">Week 4</span><span class="week-text"><strong>Module 4:</strong> Plugins + Review + Evaluation Test</span></div>
+    </div>
+  </div>
+
+  <!-- VIDEO RESOURCES -->
+  <div class="card" style="margin-bottom:32px;">
+    <h3>📺 Video Resources in This Course</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 1.1</strong> — Grafana Introduction & UI Walkthrough (12:30)</span></div>
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 2.1</strong> — Prometheus + Grafana Integration (18:45)</span></div>
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 1.5</strong> — Building Your First Dashboard (15:00)</span></div>
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 2.4</strong> — PromQL Deep Dive (22:10)</span></div>
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 3.1</strong> — Grafana Alerting Explained (14:20)</span></div>
+      <div class="video-item"><span class="video-dot"></span><span><strong>Module 4.1</strong> — Plugins & Data Source Extensions (10:55)</span></div>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text2);margin-top:12px;">Total: 6 videos | ~1.5 hours of video content</p>
+  </div>
+
+  <!-- MODULES -->
+  <div class="section-title">Course Modules</div>
+
+  <!-- MODULE 1 -->
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-num">Module 1</span>
+      <div class="module-badges">
+        <span class="badge badge-weight">25% Weight</span>
+        <span class="badge badge-sections">8 Sections</span>
+        <span class="badge badge-quiz">✅ Quiz</span>
+      </div>
+    </div>
+    <div class="module-title">Grafana Fundamentals</div>
+    <div class="module-desc">Explore the Grafana UI, understand panels, visualizations, data sources, and how to build and organize dashboards from scratch.</div>
+    <div class="module-progress-bar"><div class="module-progress-fill" id="m1-bar" style="width:0%"></div></div>
+    <div class="module-footer">
+      <span class="module-progress-text" id="m1-text">0 / 8 sections completed • 0%</span>
+      <a href="grafana-module-1.html" class="start-btn">Start Learning →</a>
+    </div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-num">Module 2</span>
+      <div class="module-badges">
+        <span class="badge badge-weight">30% Weight</span>
+        <span class="badge badge-sections">10 Sections</span>
+        <span class="badge badge-quiz">✅ Quiz</span>
+      </div>
+    </div>
+    <div class="module-title">Prometheus Integration</div>
+    <div class="module-desc">Connect Grafana to Prometheus, write PromQL queries, visualize metrics, and understand the scrape configuration and service discovery model.</div>
+    <div class="module-progress-bar"><div class="module-progress-fill" id="m2-bar" style="width:0%"></div></div>
+    <div class="module-footer">
+      <span class="module-progress-text" id="m2-text">0 / 10 sections completed • 0%</span>
+      <a href="grafana-module-2.html" class="start-btn">Start Learning →</a>
+    </div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-num">Module 3</span>
+      <div class="module-badges">
+        <span class="badge badge-weight">25% Weight</span>
+        <span class="badge badge-sections">8 Sections</span>
+        <span class="badge badge-quiz">✅ Quiz</span>
+      </div>
+    </div>
+    <div class="module-title">Alerting & Notifications</div>
+    <div class="module-desc">Create alert rules, configure contact points (Slack, email, PagerDuty), set up notification policies, silences, and understand Grafana's alerting architecture.</div>
+    <div class="module-progress-bar"><div class="module-progress-fill" id="m3-bar" style="width:0%"></div></div>
+    <div class="module-footer">
+      <span class="module-progress-text" id="m3-text">0 / 8 sections completed • 0%</span>
+      <a href="grafana-module-3.html" class="start-btn">Start Learning →</a>
+    </div>
+  </div>
+
+  <!-- MODULE 4 -->
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-num">Module 4</span>
+      <div class="module-badges">
+        <span class="badge badge-weight">20% Weight</span>
+        <span class="badge badge-sections">6 Sections</span>
+        <span class="badge badge-quiz">✅ Quiz</span>
+      </div>
+    </div>
+    <div class="module-title">Plugins & Extensions</div>
+    <div class="module-desc">Explore Grafana's plugin ecosystem — install and configure panel plugins, data source plugins, and app plugins to extend Grafana's capabilities.</div>
+    <div class="module-progress-bar"><div class="module-progress-fill" id="m4-bar" style="width:0%"></div></div>
+    <div class="module-footer">
+      <span class="module-progress-text" id="m4-text">0 / 6 sections completed • 0%</span>
+      <a href="grafana-module-4.html" class="start-btn">Start Learning →</a>
+    </div>
+  </div>
+
+  <!-- EVALUATION TEST -->
+  <div class="eval-card" id="eval-card">
+    <h3>🎓 Final Evaluation Test</h3>
+    <p>Complete all 4 modules to unlock the evaluation test. The test includes MCQ and scenario-based questions covering all course content.</p>
+    <p style="font-size:0.8rem;color:var(--text2);margin-bottom:16px;">⏳ Unlock by completing all 32 sections across 4 modules</p>
+    <a href="grafana-evaluation.html" class="eval-btn" id="eval-btn">🎯 Take Evaluation Test</a>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer" style="margin-top:32px;">
+    <div class="disclaimer-grid">
+      <div>
+        <h4>🤖 AI-Generated Content</h4>
+        <p>This training content was generated using artificial intelligence (AI) and has been reviewed by human subject matter experts. Learners should verify critical information against official Grafana documentation.</p>
+        <h4>📚 Educational Use Only</h4>
+        <p>This course is intended for internal training and educational purposes only. Content is provided "as-is" without warranties of any kind.</p>
+      </div>
+      <div>
+        <h4>🔒 Data Privacy & Security</h4>
+        <p>Your progress is stored locally in your browser. No personal data is transmitted to external servers. This course complies with SOC 2 Type II requirements.</p>
+        <h4>🔄 Content Updates</h4>
+        <p>This course content is current as of March 2026. Always consult the <a href="https://grafana.com/docs/" target="_blank">official Grafana documentation</a> for the most up-to-date information.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bar">
+  Last Updated: March 2026 | Version 1.0 &nbsp;|&nbsp; For questions, contact your Learning & Development team.<br/>
+  Course content created using Claude AI (Anthropic). Grafana® is a registered trademark of Grafana Labs. This course is not affiliated with or endorsed by Grafana Labs.
+</div>
+
+<script>
+  const TOTAL = 32;
+  const MODULE_TOTALS = [8, 10, 8, 6];
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  }
+
+  function getProgress() {
+    const data = {};
+    for (let m = 1; m <= 4; m++) {
+      const key = `grafana_m${m}_progress`;
+      try { data[m] = JSON.parse(localStorage.getItem(key)) || []; } catch { data[m] = []; }
+    }
+    return data;
+  }
+
+  function updateDashboard() {
+    const data = getProgress();
+    let totalDone = 0;
+    for (let m = 1; m <= 4; m++) {
+      const done = data[m].length;
+      const tot = MODULE_TOTALS[m-1];
+      totalDone += done;
+      const pct = tot > 0 ? Math.round((done/tot)*100) : 0;
+      const bar = document.getElementById(`m${m}-bar`);
+      const txt = document.getElementById(`m${m}-text`);
+      if (bar) bar.style.width = pct + '%';
+      if (txt) txt.textContent = `${done} / ${tot} sections completed • ${pct}%`;
+    }
+    const overallPct = Math.round((totalDone / TOTAL) * 100);
+    document.getElementById('pct-text').textContent = overallPct + '%';
+    document.getElementById('progress-label').textContent = `${totalDone} of ${TOTAL} sections completed`;
+    document.getElementById('stat-done').textContent = totalDone;
+    document.getElementById('stat-rem').textContent = TOTAL - totalDone;
+
+    const arc = document.getElementById('progress-arc');
+    const circumference = 264;
+    arc.style.strokeDashoffset = circumference - (circumference * overallPct / 100);
+
+    if (totalDone >= TOTAL) {
+      document.getElementById('eval-btn').classList.add('unlocked');
+    }
+  }
+
+  function resumeLearning() {
+    const data = getProgress();
+    for (let m = 1; m <= 4; m++) {
+      if (data[m].length < MODULE_TOTALS[m-1]) {
+        window.location.href = `grafana-module-${m}.html`;
+        return;
+      }
+    }
+    window.location.href = 'grafana-evaluation.html';
+  }
+
+  updateDashboard();
+</script>
+</body>
+</html>
